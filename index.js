@@ -8,9 +8,10 @@ const bodyParser = require("body-parser");
 const port_redis = process.env.PORT || 6379;
 const port = process.env.PORT || 5500;
 const url = process.env.URL || 'http://127.0.0.1:8000';
+const redissvc = process.env.REDISSVC || '127.0.0.1';
 
 //configure redis client on port 6379
-const redis_client = redis.createClient(port_redis, 'redis');
+const redis_client = redis.createClient(port_redis, redissvc);
 
 //configure express server
 const app = express();
@@ -30,7 +31,7 @@ checkCache = (req, res, next) => {
         }
         //if no match found
         if (data != null) {
-            res.send(data);
+            res.send(JSON.parse(data));
         } else {
             //proceed to next middleware function
             next();
@@ -58,13 +59,14 @@ app.get("/starships/:id", checkCache, async (req, res) => {
     }
 });
 
-app.get("/cache/rollrates", checkCache, async (req, res) => {
+app.get("/cache/rollrates/:id", checkCache, async (req, res) => {
     try {
-        const data = await axios.get(url + '/api/rollrates');
-        //add data to Redis
-        redis_client.setex('rollrates', 3600, JSON.stringify(data));
+        const { id } = req.params;
+        const response = await axios.get(url + '/api/rollrates');
+        //add data to Redis 
+        redis_client.setex(id, 3600, JSON.stringify(response.data));
 
-        return res.json(data);
+        return res.send(response.data);
     } catch (error) {
         console.log(error);
         return res.status(500).json(error);
