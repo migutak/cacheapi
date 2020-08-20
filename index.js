@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 //setup port constants
 const port_redis = process.env.PORT || 6379;
 const port = process.env.PORT || 5500;
+const url = process.env.URL || 'http://127.0.0.1:8000';
 
 //configure redis client on port 6379
 const redis_client = redis.createClient(port_redis, 'redis');
@@ -57,5 +58,18 @@ app.get("/starships/:id", checkCache, async (req, res) => {
     }
 });
 
-//listen on port 5000;
+app.get("/cache/rollrates", checkCache, async (req, res) => {
+    try {
+        const data = await axios.get(url + '/api/rollrates');
+        //add data to Redis
+        redis_client.setex('rollrates', 3600, JSON.stringify(data));
+
+        return res.json(data);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+});
+
+//listen on port 5500;
 app.listen(port, () => console.log(`Server running on Port ${port}`));
