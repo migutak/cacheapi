@@ -42,7 +42,7 @@ app.get("/cache/tqall/:accnumber", checkCache, async (req, res) => {
             nodeapiurl + `/tqall/${accnumber}`
         );
         //add data to Redis
-        if(!response) {
+        if(response.accnumber) {
             redis_client.setex(accnumber, 3600, JSON.stringify(response));
         }
 
