@@ -22,7 +22,7 @@ RUN npm install
 # Bundle app source code
 COPY . .
 
-RUN npm run build
+RUN npm install --only=production
 
 # Bind to all network interfaces so that it can be mapped to the host OS
 ENV HOST=0.0.0.0 PORT=5500
@@ -30,4 +30,5 @@ ENV HOST=0.0.0.0 PORT=5500
 EXPOSE ${PORT}
 CMD [ "node", "index.js" ]
 
-# docker build -t docker.io/migutak/cache:5.0 .
+# docker build -t docker.io/migutak/cache:5.2 .
+# index watch_stage
