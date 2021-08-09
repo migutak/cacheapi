@@ -1,7 +1,7 @@
 const oracledb = require('oracledb');
 const dbConfig = require('./dbconfig.js');
 const axios = require("axios");
-const cacheapiurl = process.env.URL || 'http://127.0.0.1:5500';
+const cacheapiurl = process.env.CACHEAPIURL || 'http://127.0.0.1:5500';
 
 async function run() {
   let connection;

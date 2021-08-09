@@ -26,6 +26,7 @@ checkCache = (req, res, next) => {
         }
         //if no match found
         if (data != null) {
+            console.log('..from cache');
             res.send(JSON.parse(data));
         } else {
             //proceed to next middleware function
@@ -44,6 +45,7 @@ checkCacheWatch = (req, res, next) => {
         }
         //if no match found
         if (data != null) {
+            console.log('..from cache');
             res.send(JSON.parse(data));
         } else {
             //proceed to next middleware function
@@ -62,6 +64,7 @@ checkCachetqallquery = (req, res, next) => {
         }
         //if no match found
         if (data != null) {
+            console.log('..from cache');
             res.send(JSON.parse(data));
         } else {
             //proceed to next middleware function
@@ -70,7 +73,7 @@ checkCachetqallquery = (req, res, next) => {
     });
 };
 
-app.get("/cache/nodeapi/tqall/:accnumber", checkCache, async (req, res) => {
+app.get("/cache/nodeapi/:accnumber", checkCache, async (req, res) => {
     try {
         const response = await axios.get(nodeapiurl + '/nodeapi/tqall/' + req.params.accnumber);
         //console.log(JSON.stringify(response.data))
@@ -94,7 +97,7 @@ app.get("/cache/api/watch_stage/:accnumber", checkCacheWatch, async (req, res) =
         if (response.statusText = 'OK') {
             redis_client.setex('w_' + req.params.accnumber, 43200, JSON.stringify(response.data));
         }
-
+        console.log('from api')
         return res.status(200).json(response.data);
     } catch (error) {
         console.log(error);
