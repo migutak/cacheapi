@@ -101,7 +101,7 @@ app.get("/cache/api/watch_stage/:accnumber", checkCacheWatch, async (req, res) =
         return res.status(200).json(response.data);
     } catch (error) {
         console.log(error);
-        return res.status(500).json(error);
+        return res.status(500).json(error);  
     }
 });
 
@@ -114,10 +114,10 @@ app.get("/cache/api/tqall", checkCachetqallquery, async (req, res) => {
             if (response.statusText = 'OK') {
                 redis_client.setex('q_' + req.query.filter.where.accnumber, 43200, JSON.stringify(response.data));
             }
-
+            console.log('from api')
             return res.status(200).json(response.data);
         } catch (error) {
-            console.log(error);
+            console.log(error); 
             return res.status(500).json(error);
         }
     } else {
@@ -125,5 +125,5 @@ app.get("/cache/api/tqall", checkCachetqallquery, async (req, res) => {
     }
 });
 
-//listen on port 5500; 
-app.listen(5500, () => console.log(`Server running on Port 5500`));
+//listen on port 5600;
+app.listen(5600, () => console.log(`Server running on Port 5500`));

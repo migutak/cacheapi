@@ -10,12 +10,8 @@ async function run() {
   try {
     connection = await oracledb.getConnection(dbConfig);
 
-    const sql = `SELECT accnumber,
-                  CURSOR(SELECT accnumber
-                        FROM GUARANTORDETAILS e
-                        WHERE e.accnumber = t.accnumber
-                        ) as guarantor
-             FROM tqall t`;
+    const sql = `SELECT accnumber
+             FROM tqall`;
 
     const stream = connection.queryStream(
       sql,
@@ -63,16 +59,16 @@ async function run() {
     const numrows = await consumeStream;
     console.log('Rows selected: ' + numrows);
     console.log('dataArray length: ' + dataArray.length);
-    console.log(dataArray)
-    // call cache api
-   /* for (i=0; i<=dataArray.length - 1; i++) {
+    //console.log(dataArray)
+    // call cache api 
+    for (i=0; i<=dataArray.length - 1; i++) {
       const response = await axios.get(cacheapiurl + '/cache/nodeapi/tqall/' + dataArray[i]);
       if(response.statusText = 'OK') {
         console.log('cached row '+ i +' ' + dataArray[i])
       } else {
         console.log('error cache - ' + dataArray[i])
       }
-    }*/
+    }
     
   } catch (err) {
     console.error(err);
