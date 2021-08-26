@@ -27,7 +27,7 @@ RUN npm install --only=production
 # Bind to all network interfaces so that it can be mapped to the host OS
 ENV HOST=0.0.0.0 PORT=5600
 
-EXPOSE ${PORT}
+EXPOSE ${PORT} 
 CMD [ "node", "index.js" ]
 
 # docker build -t docker.io/migutak/cache:5.6.2 .

@@ -62,12 +62,32 @@ checkCachetqallquery = (req, res, next) => {
             console.log(err);
             res.status(500).send(err);
         }
-        //if no match found
+        //if no match found 
         if (data != null) {
             console.log('..from cache');
             res.send(JSON.parse(data));
         } else {
-            //proceed to next middleware function
+            //proceed to next middleware function 
+            next();
+        }
+    });
+};
+
+
+checkCachenodeapitqall = (req, res, next) => {
+    const id = 'nodeapi_tqall';
+
+    redis_client.get(id, (err, data) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+        //if no match found 
+        if (data != null) {
+            console.log('..from cache');
+            res.send(JSON.parse(data));
+        } else {
+            //proceed to next middleware function 
             next();
         }
     });
@@ -125,5 +145,22 @@ app.get("/cache/api/tqall", checkCachetqallquery, async (req, res) => {
     }
 });
 
+app.get("/cache/nodeapi/all/tqall", checkCachenodeapitqall, async (req, res) => {
+    
+        try {
+            const response = await axios.get(nodeapiurl + '/nodeapi/tqall');
+            //add data to Redis
+            if (response.statusText = 'OK') {
+                redis_client.setex('nodeapi_tqall', 43200, JSON.stringify(response.data));
+            }
+            console.log('from api')
+            return res.status(200).json(response.data);
+        } catch (error) {
+            console.log(error); 
+            return res.status(500).json(error);
+        }
+    
+});
+
 //listen on port 5600;
-app.listen(5600, () => console.log(`Server running on Port 5500`));
+app.listen(5600, () => console.log(`Server running on Port 5600`));
