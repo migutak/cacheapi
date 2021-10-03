@@ -30,5 +30,5 @@ ENV HOST=0.0.0.0 PORT=5600
 EXPOSE ${PORT} 
 CMD [ "node", "index.js" ]
 
-# docker build -t docker.io/migutak/cache:5.6.2 .
-# index watch_stage 
+# docker build -t docker.io/migutak/cache:5.7 .
+# index watch_stage

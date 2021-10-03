@@ -10,18 +10,18 @@ const apiurl = process.env.URL || 'http://127.0.0.1:8000';
 const nodeapiurl = process.env.NODEAPIURL || 'http://127.0.0.1:6001';
 const redissvc = process.env.REDISSVC || '157.245.253.243';
 
-//configure redis client on port 6379
+//configure redis client on port 6379 
 const redis_client = redis.createClient(port_redis, redissvc);
-const app = express();
-app.use(cors())
+const app = express(); 
+app.use(cors()) 
 
 //Middleware Function to Check Cache
 checkCache = (req, res, next) => {
     const id = req.params.accnumber;
 
-    redis_client.get(id, (err, data) => {
+    redis_client.get(id, (err, data) => { 
         if (err) {
-            console.log(err);
+            console.log(err); 
             res.status(500).send(err);
         }
         //if no match found
@@ -143,7 +143,7 @@ app.get("/cache/api/tqall", checkCachetqallquery, async (req, res) => {
     } else {
         return res.status(200).json([]);
     }
-});
+}); 
 
 app.get("/cache/nodeapi/all/tqall", checkCachenodeapitqall, async (req, res) => {
     
@@ -162,5 +162,30 @@ app.get("/cache/nodeapi/all/tqall", checkCachenodeapitqall, async (req, res) => 
     
 });
 
-//listen on port 5600;
+app.post("/cache/nodeapi/tqall", checkCachenodeapitqall, async (req, res) => {
+    const branchname = req.branchname
+    const arocode = req.arocode
+    const region = req.region
+    const productcode = req.productcode
+
+    if (req.query.filter.where.accnumber) {
+        try {
+            const response = await axios.get(apiurl + '/api/tqall?filter[where][productcode]=AssetFinanceLoan' + req.query.filter.where.accnumber);
+
+            //add data to Redis
+            if (response.statusText = 'OK') {
+                redis_client.setex('q_' + req.query.filter.where.accnumber, 43200, JSON.stringify(response.data));
+            }
+            console.log('from api')
+            return res.status(200).json(response.data);
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json(error);
+        }
+    } else {
+        return res.status(200).json([]); 
+    }
+});
+
+//listen on port 5600; 
 app.listen(5600, () => console.log(`Server running on Port 5600`));
