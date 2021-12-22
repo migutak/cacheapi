@@ -15,10 +15,10 @@ async function run() {
 
     const stream = connection.queryStream(
       sql,
-      [],  // no binds
+      [],  // no binds 
       {
         prefetchRows:   150,  // internal buffer sizes can be adjusted for performance tuning
-        fetchArraySize: 150
+        fetchArraySize: 150 
       }
     );
     let dataArray = [];

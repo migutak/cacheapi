@@ -8,14 +8,14 @@ const cors = require('cors')
 const port_redis = process.env.REDISPORT || 6379;
 const apiurl = process.env.URL || 'http://127.0.0.1:8000';
 const nodeapiurl = process.env.NODEAPIURL || 'http://127.0.0.1:6001';
-const redissvc = process.env.REDISSVC || '157.245.253.243';
+const redissvc = process.env.REDISSVC || '127.0.0.1';
 
-//configure redis client on port 6379 
+//configure redis client on port 6379
 const redis_client = redis.createClient(port_redis, redissvc);
 const app = express(); 
-app.use(cors()) 
+app.use(cors())
 
-//Middleware Function to Check Cache
+//Middleware Function to Check Cache 
 checkCache = (req, res, next) => {
     const id = req.params.accnumber;
 
@@ -48,7 +48,7 @@ checkCacheWatch = (req, res, next) => {
             console.log('..from cache');
             res.send(JSON.parse(data));
         } else {
-            //proceed to next middleware function
+            //proceed to next middleware function 
             next();
         }
     });
