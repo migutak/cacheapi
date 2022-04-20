@@ -1,15 +1,9 @@
-FROM oraclelinux:8-slim
-ARG release=19
-ARG update=9
+FROM oraclelinux:8
 
-RUN  microdnf install oracle-release-el8 && \
-  microdnf install oracle-instantclient${release}.${update}-basic oracle-instantclient${release}.${update}-devel oracle-instantclient${release}.${update}-sqlplus && \
-  microdnf install nodejs &&\
-  microdnf install iputils telnet -y &&\
-  microdnf clean all
-
-# Uncomment if the tools package is added
-# ENV PATH=$PATH:/usr/lib/oracle/${release}.${update}/client64/bin
+RUN  dnf -y install oracle-instantclient-release-el8 && \
+     dnf -y install oracle-instantclient-basic oracle-instantclient-devel oracle-instantclient-sqlplus && \
+     dnf install nodejs iputils telnet -y &&\
+     rm -rf /var/cache/dnf
 
 # Create app directory (with user `node`)
 RUN mkdir -p /app
@@ -30,5 +24,5 @@ ENV HOST=0.0.0.0 PORT=5600
 EXPOSE ${PORT} 
 CMD [ "node", "index.js" ]
 
-# docker build -t docker.io/migutak/cache:5.7 .
+# docker build -t docker.io/migutak/cache:5.7.2 .
 # index watch_stage

@@ -13,13 +13,33 @@ const redissvc = process.env.REDISSVC || '127.0.0.1';
 //configure redis client on port 6379
 const redis_client = redis.createClient(port_redis, redissvc);
 const app = express(); 
-app.use(cors())
+app.use(cors());
+app.use(express.json());
 
 //Middleware Function to Check Cache 
 checkCache = (req, res, next) => {
     const id = req.params.accnumber;
 
     redis_client.get(id, (err, data) => { 
+        if (err) {
+            console.log(err); 
+            res.status(500).send(err);
+        }
+        //if no match found
+        if (data != null) {
+            console.log('..from cache');
+            res.send(JSON.parse(data));
+        } else {
+            //proceed to next middleware function
+            next();
+        }
+    });
+};
+
+customerdetailssummarycheckCache = (req, res, next) => {
+    const CustomerId = 'customerdetailssummary_' + req.body.CustomerDetailsInquiryRequest.CustomerDetailsInquiryRq.CustomerId;
+
+    redis_client.get(CustomerId, (err, data) => { 
         if (err) {
             console.log(err); 
             res.status(500).send(err);
@@ -92,6 +112,58 @@ checkCachenodeapitqall = (req, res, next) => {
         }
     });
 };
+
+app.post("/cache/customerdetailssummary/dev", async (req, res) => {
+    const CustomerId = req.body.CustomerDetailsInquiryRequest.CustomerDetailsInquiryRq.CustomerId
+
+    redis_client.get('customerdetailssummary_'+CustomerId, (err, data) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+        //if no match found 
+        if (data != null) {
+            res.send(JSON.parse(data));
+        } else {
+            //proceed to next middleware function 
+            res.status(500).send({message: 'customer missing'});
+        }
+    });
+});
+
+app.post("/cache/loansummary/dev", async (req, res) => {
+    const accountNum = req.body.LoanSummaryReq.accountNum
+
+    redis_client.get('loansummary_'+accountNum, (err, data) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+        //if no match found 
+        if (data != null) {
+            res.send(JSON.parse(data));
+        } else {
+            //proceed to next middleware function 
+            res.status(500).send({message: 'loan is missing'});
+        }
+    });
+});
+
+app.post("/cache/customerdetailssummary", customerdetailssummarycheckCache, async (req, res) => {
+    try {
+        const response = await axios.post('http://192.168.0.180/REST/Customer/CustomerDetailsSummary/Get/1.0', req.body);
+        console.log(JSON.stringify(response.data))
+        //add data to Redis
+        if (response.statusText = 'OK') {
+            redis_client.setex('customerdetailssummary_'+req.body.CustomerDetailsInquiryRequest.CustomerDetailsInquiryRq.CustomerId, 43200, JSON.stringify(response.data));
+        }
+
+        return res.status(200).json(response.data);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+});
 
 app.get("/cache/nodeapi/:accnumber", checkCache, async (req, res) => {
     try {
