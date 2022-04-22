@@ -7,6 +7,7 @@ const cacheapiurl = process.env.CACHEAPIURL || 'http://127.0.0.1:5500';
 const redissvc = process.env.REDISSVC || '127.0.0.1';
 const port_redis = process.env.REDISPORT || 6379;
 const redispass = process.env.REDISPASS || 'abc.123';
+const soaurl = process.env.SOAURL || 'http://192.168.0.180'
 
 const redis_client = redis.createClient({
   host: redissvc,
@@ -94,7 +95,7 @@ async function run() {
           }
         };
 
-        const response = await axios.post('http://soauat.co-opbank.co.ke/REST2/Account/LoanSummary/Get/2.0', body);
+        const response = await axios.post(soaurl + '/REST2/Account/LoanSummary/Get/2.0', body);
         if (response.statusText = 'OK') {
           console.log(JSON.stringify(response.data));
           redis_client.set('loansummary_' + body.LoanSummaryReq.accountNum, JSON.stringify(response.data));

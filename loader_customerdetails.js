@@ -7,6 +7,7 @@ const cacheapiurl = process.env.CACHEAPIURL || 'http://127.0.0.1:5500';
 const redissvc = process.env.REDISSVC || '127.0.0.1';
 const port_redis = process.env.REDISPORT || 6379;
 const redispass = process.env.REDISPASS || 'abc.123';
+const soaurl = process.env.SOAURL || 'http://192.168.0.180'
 
 const redis_client = redis.createClient({
   host: redissvc,
@@ -101,7 +102,7 @@ async function run() {
           }
         };
 
-        const response = await axios.post('http://192.168.0.180/REST/Customer/CustomerDetailsSummary/Get/1.0', body);
+        const response = await axios.post(soaurl + '/REST/Customer/CustomerDetailsSummary/Get/1.0', body);
         if (response.statusText = 'OK') {
           console.log(JSON.stringify(response.data));
           redis_client.set('customerdetailssummary_' + body.CustomerDetailsInquiryRequest.CustomerDetailsInquiryRq.CustomerId, JSON.stringify(response.data));
