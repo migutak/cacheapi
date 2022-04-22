@@ -2,21 +2,28 @@
 const express = require("express");
 const redis = require("redis");
 const axios = require("axios");
-const cors = require('cors')
+const cors = require('cors');
+const { password } = require("./dbconfig");
 
 //setup port constants
-const port_redis = process.env.REDISPORT || 6379;
+const port_redis = process.env.REDISPORT || 6380;
 const apiurl = process.env.URL || 'http://127.0.0.1:8000';
 const nodeapiurl = process.env.NODEAPIURL || 'http://127.0.0.1:6001';
 const redissvc = process.env.REDISSVC || '127.0.0.1';
+const redispass = process.env.REDISPASS || 'abc.123';
 
-//configure redis client on port 6379
-const redis_client = redis.createClient(port_redis, redissvc);
-const app = express(); 
+//configure redis client on port 6380
+//const redis_client = redis.createClient(port_redis, redissvc); 
+const redis_client = redis.createClient({
+    host: redissvc,
+    port: port_redis,
+    password: redispass
+})
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-//Middleware Function to Check Cache 
+//Middleware Function to Check Cache
 checkCache = (req, res, next) => {
     const id = req.params.accnumber;
 

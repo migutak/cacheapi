@@ -1,7 +1,7 @@
 const oracledb = require('oracledb');
 const dbConfig = require('./dbconfig.js');
 const axios = require("axios");
-const cacheapiurl = process.env.CACHEAPIURL || 'http://127.0.0.1:5500';
+const cacheapiurl = process.env.CACHEAPIURL || 'http://127.0.0.1:5600';
 const csv = require('csv-parser')
 const fs = require('fs');
 var Redis = require("ioredis");
