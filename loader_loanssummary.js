@@ -26,7 +26,7 @@ async function run() {
 
     const stream = connection.queryStream(
       sql,
-      [],  // no binds 
+      [],  // no binds
       {
         prefetchRows: 150,  // internal buffer sizes can be adjusted for performance tuning
         fetchArraySize: 150
@@ -51,7 +51,7 @@ async function run() {
         //console.log("stream 'data' event");
         //console.log(data[0]);
         dataArray.push(data[0]);
-        rowcount++;
+        rowcount++; 
       });
 
       stream.on('end', function () {
