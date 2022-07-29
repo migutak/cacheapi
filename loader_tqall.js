@@ -62,7 +62,7 @@ async function run() {
     //console.log(dataArray)
     // call cache api
     for (i=0; i<=dataArray.length - 1; i++) {
-      const response = await axios.get(cacheapiurl + '/cache/nodeapi/tqall/' + dataArray[i]);
+      const response = await axios.get(cacheapiurl + '/cache/nodeapi/' + dataArray[i]);
       if(response.statusText = 'OK') {
         console.log('cached row '+ i +' ' + dataArray[i])
       } else {
