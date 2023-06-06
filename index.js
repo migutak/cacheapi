@@ -9,6 +9,7 @@ const { password } = require("./dbconfig");
 const port_redis = process.env.REDISPORT || 6380;
 const apiurl = process.env.URL || 'http://127.0.0.1:8000';
 const nodeapiurl = process.env.NODEAPIURL || 'http://127.0.0.1:6001';
+const nodeapiv2url = process.env.NODEAPIV2URL || 'http://127.0.0.1:3000';
 const redissvc = process.env.REDISSVC || '127.0.0.1';
 const redispass = process.env.REDISPASS || 'abc.123';
 
@@ -42,6 +43,46 @@ checkCache = (req, res, next) => {
         }
     });
 };
+
+checknodeapiv2Cache = (req, res, next) => {
+    const accnumber = 'nodeapiv2_' + req.params.accnumber;
+
+    redis_client.get(accnumber, (err, data) => { 
+        if (err) {
+            console.log(err); 
+            res.status(500).send(err);
+        }
+        //if no match found
+        if (data != null) {
+            console.log('..from cache');
+            res.send(JSON.parse(data));
+        } else {
+            //proceed to next middleware function
+            next();
+        }
+    });
+};
+
+checkloans_finacleCache = (req, res, next) => {
+    const accnumber = 'loans_finacle_' + req.params.accnumber;
+
+    redis_client.get(accnumber, (err, data) => { 
+        if (err) {
+            console.log(err); 
+            res.status(500).send(err);
+        }
+        //if no match found
+        if (data != null) {
+            console.log('..from cache');
+            res.send(JSON.parse(data));
+        } else {
+            //proceed to next middleware function
+            next();
+        }
+    });
+};
+
+
 
 customerdetailssummarycheckCache = (req, res, next) => {
     const CustomerId = 'customerdetailssummary_' + req.body.CustomerDetailsInquiryRequest.CustomerDetailsInquiryRq.CustomerId;
@@ -138,7 +179,28 @@ app.post("/cache/customerdetailssummary/dev", async (req, res) => {
     });
 });
 
-app.post("/cache/loansummary/dev", async (req, res) => {
+app.post("/rest2ssl/customer/customerdetailssummary/dev", async (req, res) => {
+    const CustomerId = req.body.CustomerDetailsInquiryRequest.CustomerDetailsInquiryRq.CustomerId
+
+    redis_client.get('customerdetailssummary_'+CustomerId, (err, data) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+        //if no match found 
+        if (data != null) {
+            res.send(JSON.parse(data));
+        } else {
+            //proceed to next middleware function 
+            res.status(500).send({message: 'customer missing'});
+        }
+    });
+});
+
+
+//app.post("/cache/loansummary/dev", async (req, res) => {
+    
+app.post("/restssl/Account/LoanSummaryRest/Get/2.0", async (req, res) => {
     const accountNum = req.body.LoanSummaryReq.accountNum
 
     redis_client.get('loansummary_'+accountNum, (err, data) => {
@@ -156,7 +218,7 @@ app.post("/cache/loansummary/dev", async (req, res) => {
     });
 });
 
-app.post("/cache/customerdetailssummary", customerdetailssummarycheckCache, async (req, res) => {
+app.post("/restssl/Customer/CustomerDetailsSummary/Get/1.0", customerdetailssummarycheckCache, async (req, res) => {
     try {
         const response = await axios.post('http://192.168.0.180/REST/Customer/CustomerDetailsSummary/Get/1.0', req.body);
         console.log(JSON.stringify(response.data))
@@ -179,6 +241,38 @@ app.get("/cache/nodeapi/:accnumber", checkCache, async (req, res) => {
         //add data to Redis
         if (response.statusText = 'OK') {
             redis_client.setex(req.params.accnumber, 43200, JSON.stringify(response.data));
+        }
+
+        return res.status(200).json(response.data);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+});
+
+app.get("/cache/nodeapi-v2/:accnumber", checknodeapiv2Cache, async (req, res) => {
+    try {
+        const response = await axios.get(nodeapiv2url + '/nodeapi-v2/tqall/' + req.params.accnumber);
+        //console.log(JSON.stringify(response.data))
+        //add data to Redis
+        if (response.statusText = 'OK') {
+            redis_client.setex('nodeapiv2_' + req.params.accnumber, 43200, JSON.stringify(response.data));
+        }
+
+        return res.status(200).json(response.data);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+});
+
+app.get("/cache/loans_finacle/:accnumber", checkloans_finacleCache, async (req, res) => {
+    try {
+        const response = await axios.get(nodeapi + '/loans_finacle/' + req.params.accnumber);
+        //console.log(JSON.stringify(response.data))
+        //add data to Redis
+        if (response.statusText = 'OK') {
+            redis_client.setex('loans_finacle_' + req.params.accnumber, 43200, JSON.stringify(response.data));
         }
 
         return res.status(200).json(response.data);

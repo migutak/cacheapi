@@ -7,7 +7,7 @@ const cacheapiurl = process.env.CACHEAPIURL || 'http://127.0.0.1:5500';
 const redissvc = process.env.REDISSVC || '127.0.0.1';
 const port_redis = process.env.REDISPORT || 6379;
 const redispass = process.env.REDISPASS || 'abc.123';
-const soaurl = process.env.SOAURL || 'http://192.168.0.180'
+const soaurl = process.env.SOAURL || 'http://ecollecttst.co-opbank.co.ke/restssl'
 
 const redis_client = redis.createClient({
   host: redissvc,

@@ -59,7 +59,6 @@ async function run() {
     const numrows = await consumeStream;
     console.log('Rows selected: ' + numrows);
     console.log('dataArray length: ' + dataArray.length);
-    //console.log(dataArray)
     // call cache api
     for (i=0; i<=dataArray.length - 1; i++) {
       const response = await axios.get(cacheapiurl + '/cache/nodeapi/' + dataArray[i]);
