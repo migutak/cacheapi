@@ -5,7 +5,7 @@ node {
             checkout scm
       }
       stage("Docker build"){
-        app = docker.build("migutak/cache")
+        app = docker.build("inteligeninfosys/cache")
       }
 
       stage('Test'){
