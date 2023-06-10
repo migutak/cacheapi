@@ -268,7 +268,7 @@ app.get("/cache/nodeapi-v2/:accnumber", checknodeapiv2Cache, async (req, res) =>
 
 app.get("/cache/loans_finacle/:accnumber", checkloans_finacleCache, async (req, res) => {
     try {
-        const response = await axios.get(nodeapi + '/loans_finacle/' + req.params.accnumber);
+        const response = await axios.get(nodeapiurl + '/loans_finacle/' + req.params.accnumber);
         //console.log(JSON.stringify(response.data))
         //add data to Redis
         if (response.statusText = 'OK') {
